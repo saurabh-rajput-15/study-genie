@@ -107,20 +107,51 @@ const AppContent: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [appState, setAppState] = useState<AppState>(AppState.UPLOAD);
-    const [studyMaterials, setStudyMaterials] = useState<StudyMaterials | null>(null);
+    
+    // Initialize state from local storage to persist data on reload
+    const [uploadHistory, setUploadHistory] = useState<UploadHistoryItem[]>(loadUploadHistory);
+    
+    const [currentUploadId, setCurrentUploadId] = useState<string | null>(() => {
+        return localStorage.getItem('studygenie_current_upload_id');
+    });
+
+    const [studyMaterials, setStudyMaterials] = useState<StudyMaterials | null>(() => {
+        if (currentUploadId && uploadHistory.length > 0) {
+            const item = uploadHistory.find(i => i.id === currentUploadId);
+            return item ? item.materials : null;
+        }
+        return null;
+    });
+
     const [error, setError] = useState<string | null>(null);
-    const [uploadHistory, setUploadHistory] = useState<UploadHistoryItem[]>([]);
-    const [currentUploadId, setCurrentUploadId] = useState<string | null>(null);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
-    const [currentFileName, setCurrentFileName] = useState<string>('');
+    
+    // Initialize filename securely
+    const [currentFileName, setCurrentFileName] = useState<string>(() => {
+        if (currentUploadId && uploadHistory.length > 0) {
+            const item = uploadHistory.find(i => i.id === currentUploadId);
+            return item ? item.title : '';
+        }
+        return '';
+    });
     
     const { userStats, awardXP, unlockedAchievements, dismissAchievement, updateDisplayName, loading: statsLoading } = useGamification();
 
-    // Load history on mount
+    // Persist current upload ID selection
     useEffect(() => {
-        const history = loadUploadHistory();
-        setUploadHistory(history);
-    }, []);
+        if (currentUploadId) {
+            localStorage.setItem('studygenie_current_upload_id', currentUploadId);
+        } else {
+            localStorage.removeItem('studygenie_current_upload_id');
+        }
+    }, [currentUploadId]);
+    
+    // Restore study session if we have materials but appState is reset
+    useEffect(() => {
+        if (studyMaterials && location.pathname.includes('/app/dashboard') && appState === AppState.UPLOAD) {
+            setAppState(AppState.DASHBOARD);
+        }
+    }, [studyMaterials, location.pathname, appState]);
 
     const handleFileProcessed = async (text: string, fileName?: string) => {
         setAppState(AppState.GENERATING);
