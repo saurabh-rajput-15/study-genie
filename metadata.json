@@ -1,0 +1,5 @@
+{
+  "name": "StudyGenie: AI Learning Platform",
+  "description": "An AI-powered learning platform that transforms static educational materials into interactive quizzes, flashcards, summaries, and mind maps using Google Gemini. Features gamification to make studying more engaging.",
+  "requestFramePermissions": []
+}
