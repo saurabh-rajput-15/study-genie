@@ -175,7 +175,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToSignIn }) => {
                                 </div>
                                 
                                 {/* Dashboard Preview */}
-                                <img src="./dashboard.png" alt="Dashboard Preview" className="w-full" />
+                                <picture>
+                                    <source media="(max-width: 767px)" srcSet="./dashboard-mobile-preview.jpg" />
+                                    <img
+                                        src="./dashboard.png"
+                                        alt="StudyGenie dashboard preview showing learning progress and insights"
+                                        className="w-full"
+                                    />
+                                </picture>
                             </div>
                         </div>
                     </div>
